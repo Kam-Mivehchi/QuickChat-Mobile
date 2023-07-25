@@ -3,7 +3,7 @@ import * as React from 'react'
 import { useNavigation } from '@react-navigation/native';
 import { login, register } from '../utils/api';
 import Auth from '../utils/auth';
-
+import { Input, Icon } from '@rneui/themed';
 import { useSelector, useDispatch, } from 'react-redux'
 import { ActionTypes, AppState } from "../utils/redux/reducers"
 import { AppDispatch } from "../utils/redux/store";
@@ -54,7 +54,6 @@ const Login = () => {
    return (
       <SafeAreaView className="h-screen bg-slate-500 flex items-center justify-center">
          <View>
-
             <Text>Login</Text>
          </View>
       </SafeAreaView>

@@ -35,30 +35,92 @@ interface IUpdateUserBody {
    avatar?: string;
 }
 
-const api = axios.create({
-   baseURL: process.env.EXPO_PUBLIC_API_URL,
-   headers: {
-      Authorization: 'Bearer ' + Auth.getToken()
-   }
-});
-axios.interceptors.response.use(
-   response => response,
-   error => {
-      if (error.response.status === 401) {
-         window.location.href = '/';
+// async function makeApiRequest() {
+//    try {
+//       const token = await Auth.getToken();
+//       // if (!token) {
+//       //    // Handle the case when the token is not available
+//       //    console.error('Token is not available.');
+//       //    return;
+//       // }
+//       console.log(!!token)
+//       const api = axios.create({
+//          baseURL: process.env.EXPO_PUBLIC_API_URL,
+//          headers: {
+//             Authorization: 'Bearer ' + !!token ? token : "",
+//          },
+//       });
+//       console.log()
+//       return api
+//    } catch (error) {
+//       console.error('Error making API request:', error.message);
+//    }
+// }
+
+const getTokenAndCreateAPI = async () => {
+   try {
+      let token = await Auth.getToken();
+      if (!token) {
+         // Handle the case when the token is not available
+         console.error('Token is not available.');
+
+
       }
-   });
+
+      const api = axios.create({
+         baseURL: process.env.EXPO_PUBLIC_API_URL,
+         headers: {
+            Authorization: 'Bearer ' + token,
+         },
+      });
+
+      return api;
+   } catch (error) {
+      console.error('Error retrieving token:', error.message);
+      return null;
+   }
+};
+
+// const api = axios.create({
+//    baseURL: process.env.EXPO_PUBLIC_API_URL,
+//    headers: {
+//       Authorization: 'Bearer ' + Auth.getToken()
+//    }
+// });
+// axios.interceptors.response.use(
+//    response => response,
+//    error => {
+//       if (error.response.status === 401) {
+//          window.location.href = '/';
+//       }
+//    });
 // USER ROUTES
 export async function sendMessage(body: INewMessage) {
+   const api = await getTokenAndCreateAPI();
+   if (!api) {
+      // Handle the case when the API instance is not available
+      console.error('API instance is not available.');
+      return null;
+   }
    const response = await api.post(`/chat/${body.chatroom}`, body);
    const data = response.data as unknown as IMessage[]
    return data;
 }
 
 export async function login(userData: IReturningUser): Promise<authResponse> {
-   const response = await api.post('/users/login', userData)
-   const data = response.data as unknown as authResponse
-   return data;
+   try {
+      const api = await getTokenAndCreateAPI();
+      if (!api) {
+         // Handle the case when the API instance is not available
+         console.error('API instance is not available.');
+         return null;
+      }
+      const response = await api.post('http://localhost:3001/api/users/login', userData)
+      const data = response.data as unknown as authResponse
+      return data;
+   } catch (error) {
+      console.log(error)
+   }
 }
 
 export async function register(userData: INewUser): Promise<authResponse> {

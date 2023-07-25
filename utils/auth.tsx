@@ -38,21 +38,21 @@ class AuthService {
 
    async getToken(): Promise<string> {
       // Retrieves the user token from localStorage
-      const token = await AsyncStorage.getItem('id_token') || "";
-      return token;
+      const token = await AsyncStorage.getItem('id_token');
+      return token || "";
    }
 
    async login(idToken: string): Promise<void> {
       // Saves user token to localStorage
       await AsyncStorage.setItem('id_token', idToken);
-      window.location.assign('/');
+      // window.location.assign('/');
    }
 
    async logout(): Promise<void> {
       // Clear user token and profile data from localStorage
       await AsyncStorage.removeItem('id_token');
       // this will reload the page and reset the state of the application
-      window.location.assign('/');
+      // window.location.assign('/');
    }
 }
 

@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-
+import { Provider } from "react-redux";
+import store from "./utils/redux/store";
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as React from 'react';
@@ -24,21 +25,24 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        {signedIn ? (
-          <>
-            <Stack.Screen name="Home" component={HomeTabs} />
-            {/* <Stack.Screen name="Chats" component={Chats} /> */}
-          </>
-        ) : (
-          <Stack.Screen name="Login" component={Login} />
+      <Provider store={store}>
 
-        )}
+        <Stack.Navigator>
+          {signedIn ? (
+            <>
+              <Stack.Screen name="Home" component={HomeTabs} />
+              {/* <Stack.Screen name="Chats" component={Chats} /> */}
+            </>
+          ) : (
+            <Stack.Screen name="Login" component={Login} />
 
-      </Stack.Navigator>
+          )}
+
+        </Stack.Navigator>
 
 
-      < StatusBar style="auto" />
+        < StatusBar style="auto" />
+      </Provider>
 
 
     </NavigationContainer>

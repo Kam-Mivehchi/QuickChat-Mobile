@@ -7,7 +7,11 @@ import { Input, Icon, Button } from '@rneui/themed';
 import { useSelector, useDispatch, } from 'react-redux'
 import { ActionTypes, AppState } from "../utils/redux/reducers"
 import { AppDispatch } from "../utils/redux/store";
-
+import axios from 'axios';
+interface authResponse {
+   user: IUser;
+   token: string;
+}
 const Login = () => {
    const nav = useNavigation()
    const [formState, setFormState] = React.useState({ email: '', password: '', username: '' });
@@ -16,7 +20,6 @@ const Login = () => {
    const state = useSelector(state => state) as AppState
    const [registration, setRegistration] = React.useState<boolean>(false)
    const [spin, setSpin] = React.useState<boolean>(false)
-
    React.useLayoutEffect(() => {
       nav.setOptions({
          headerShown: false
@@ -27,7 +30,11 @@ const Login = () => {
       try {
          dispatch({ type: ActionTypes.SET_LOADING, loading: true });
 
-         const { token, user } = await login({ email: formState.email, password: formState.password })
+
+         const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/users/login`, { email: formState.email, password: formState.password })
+
+         const { token, user } = response.data as unknown as authResponse
+
 
          Auth.login(token);
 
@@ -38,9 +45,9 @@ const Login = () => {
 
       } catch (e) {
 
+         console.info(e)
          dispatch({ type: ActionTypes.SET_ERROR, error: !!e });
          dispatch({ type: ActionTypes.SET_LOADING, loading: false });
-         console.log(e)
       }
    };
 

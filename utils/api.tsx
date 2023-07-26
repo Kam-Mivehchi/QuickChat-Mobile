@@ -1,5 +1,6 @@
 import Auth from './auth';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
@@ -34,43 +35,20 @@ interface IUpdateUserBody {
    bio?: string;
    avatar?: string;
 }
-
-// async function makeApiRequest() {
-//    try {
-//       const token = await Auth.getToken();
-//       // if (!token) {
-//       //    // Handle the case when the token is not available
-//       //    console.error('Token is not available.');
-//       //    return;
-//       // }
-//       console.log(!!token)
-//       const api = axios.create({
-//          baseURL: process.env.EXPO_PUBLIC_API_URL,
-//          headers: {
-//             Authorization: 'Bearer ' + !!token ? token : "",
-//          },
-//       });
-//       console.log()
-//       return api
-//    } catch (error) {
-//       console.error('Error making API request:', error.message);
-//    }
-// }
-
 const getTokenAndCreateAPI = async () => {
    try {
-      let token = await Auth.getToken();
-      if (!token) {
-         // Handle the case when the token is not available
-         console.error('Token is not available.');
+      const token = await AsyncStorage.getItem('id_token') || "";
+      console.log({ token })
+      // if (!token) {
+      //    // Handle the case when the token is not available
+      //    console.error('Token is not available.');
 
-
-      }
+      // }
 
       const api = axios.create({
          baseURL: process.env.EXPO_PUBLIC_API_URL,
          headers: {
-            Authorization: 'Bearer ' + token,
+            Authorization: `Bearer ${token}`,
          },
       });
 
@@ -80,7 +58,6 @@ const getTokenAndCreateAPI = async () => {
       return null;
    }
 };
-
 // const api = axios.create({
 //    baseURL: process.env.EXPO_PUBLIC_API_URL,
 //    headers: {
@@ -91,7 +68,7 @@ const getTokenAndCreateAPI = async () => {
 //    response => response,
 //    error => {
 //       if (error.response.status === 401) {
-//          window.location.href = '/';
+//          // window.location.href = '/';
 //       }
 //    });
 // USER ROUTES
@@ -108,51 +85,83 @@ export async function sendMessage(body: INewMessage) {
 }
 
 export async function login(userData: IReturningUser): Promise<authResponse> {
-   try {
-      const api = await getTokenAndCreateAPI();
-      if (!api) {
-         // Handle the case when the API instance is not available
-         console.error('API instance is not available.');
-         return null;
-      }
-      const response = await api.post('http://localhost:3001/api/users/login', userData)
-      const data = response.data as unknown as authResponse
-      return data;
-   } catch (error) {
-      console.log(error)
+   const api = await getTokenAndCreateAPI();
+   if (!api) {
+      // Handle the case when the API instance is not available
+      console.error('API instance is not available.');
+      return
    }
+   const response = await api.post('/users/login', userData)
+   const data = response.data as unknown as authResponse
+   return data;
 }
 
 export async function register(userData: INewUser): Promise<authResponse> {
+   const api = await getTokenAndCreateAPI();
+   if (!api) {
+      // Handle the case when the API instance is not available
+      console.error('API instance is not available.');
+      return null;
+   }
    const response = await api.post('/users/register', userData)
    const data = response.data as unknown as authResponse
    return data;
 }
 
 export async function searchForUsers(input: string): Promise<IUser[]> {
+   const api = await getTokenAndCreateAPI();
+   if (!api) {
+      // Handle the case when the API instance is not available
+      console.error('API instance is not available.');
+      return null;
+   }
    const response = await api.post(`/users/`, { input: input });
    const data = response.data as unknown as IUser[]
    return data;
 }
 export async function getSingleUser({ params }: { params: IUserQueryParam }): Promise<IUser> {
+   const api = await getTokenAndCreateAPI();
+   if (!api) {
+      // Handle the case when the API instance is not available
+      console.error('API instance is not available.');
+      return null;
+   }
    const response = await api.get(`/users/${params.userId}`);
    const data = response.data as unknown as IUser
    return data;
 }
 
 export async function updateUser(params: string, body: IUpdateUserBody): Promise<IUser> {
+   const api = await getTokenAndCreateAPI();
+   if (!api) {
+      // Handle the case when the API instance is not available
+      console.error('API instance is not available.');
+      return null;
+   }
    const response = await api.put(`/users/${params}`, body);
    const data = response.data as unknown as IUser
    return data;
 }
 
 export async function deleteUser({ params }: { params: IUserQueryParam }): Promise<string> {
+   const api = await getTokenAndCreateAPI();
+   if (!api) {
+      // Handle the case when the API instance is not available
+      console.error('API instance is not available.');
+      return null;
+   }
    const response = await api.delete(`/users/${params.userId}`);
    const data = response.data as unknown as string
    return data;
 }
 
 export async function updatePassword({ params, newPassword }: { params: IUserQueryParam, newPassword: string }): Promise<IUser> {
+   const api = await getTokenAndCreateAPI();
+   if (!api) {
+      // Handle the case when the API instance is not available
+      console.error('API instance is not available.');
+      return null;
+   }
    const response = await api.put(`/users/${params.userId}/recovery`, { password: newPassword });
    const data = response.data as unknown as IUser
    return data;
@@ -160,24 +169,48 @@ export async function updatePassword({ params, newPassword }: { params: IUserQue
 
 // CHAT ROUTES
 export async function createGroupChat({ members }: { members: string[] }): Promise<IChatroom> {
+   const api = await getTokenAndCreateAPI();
+   if (!api) {
+      // Handle the case when the API instance is not available
+      console.error('API instance is not available.');
+      return null;
+   }
    const response = await api.post(`/chat/`, { members: members });
    const data = response.data as unknown as IChatroom
    return data;
 }
 // CHAT ROUTES
 export async function createDM(member: string): Promise<IChatroom> {
+   const api = await getTokenAndCreateAPI();
+   if (!api) {
+      // Handle the case when the API instance is not available
+      console.error('API instance is not available.');
+      return null;
+   }
    const response = await api.post(`/chat/dm`, { members: [member] });
    const data = response.data as unknown as IChatroom
    return data;
 }
 
 export async function getAllChats(): Promise<IChatroom[]> {
+   const api = await getTokenAndCreateAPI();
+   if (!api) {
+      // Handle the case when the API instance is not available
+      console.error('API instance is not available.');
+      return null;
+   }
    const response = await api.get("/users/chats");
    const data = response.data as unknown as IChatroom[]
    return data;
 
 }
 export async function getSingleChat(chatId: string): Promise<IChatroom> {
+   const api = await getTokenAndCreateAPI();
+   if (!api) {
+      // Handle the case when the API instance is not available
+      console.error('API instance is not available.');
+      return null;
+   }
    const response = await api.get(`/chats/${chatId}`);
    const data = response.data as unknown as IChatroom
    return data;
@@ -185,6 +218,12 @@ export async function getSingleChat(chatId: string): Promise<IChatroom> {
 }
 
 export async function getAllMessages({ params }: { params: IChatroomQueryParam }): Promise<IMessage[]> {
+   const api = await getTokenAndCreateAPI();
+   if (!api) {
+      // Handle the case when the API instance is not available
+      console.error('API instance is not available.');
+      return null;
+   }
    const response = await api.get(`/chat/${params.chatId}/messages`);
 
    const data = response.data as unknown as IMessage[]
@@ -192,12 +231,24 @@ export async function getAllMessages({ params }: { params: IChatroomQueryParam }
 }
 
 export async function deleteChat({ params }: { params: IChatroomQueryParam }): Promise<string> {
+   const api = await getTokenAndCreateAPI();
+   if (!api) {
+      // Handle the case when the API instance is not available
+      console.error('API instance is not available.');
+      return null;
+   }
    const response = await api.delete(`/chat/${params.chatId}`);
    const data = response.data as unknown as string
    return data;
 }
 
 export async function addMemberToChat({ params, members }: { params: IChatroomQueryParam, members: string[] }): Promise<IChatroom> {
+   const api = await getTokenAndCreateAPI();
+   if (!api) {
+      // Handle the case when the API instance is not available
+      console.error('API instance is not available.');
+      return null;
+   }
    const response = await api.put(`/chat/${params.chatId}/add`, { members: members });
    const data = response.data as unknown as IChatroom
    return data;
@@ -205,6 +256,12 @@ export async function addMemberToChat({ params, members }: { params: IChatroomQu
 }
 
 export async function removeMemberFromChat({ params, members }: { params: IChatroomQueryParam, members: string[] }): Promise<IChatroom> {
+   const api = await getTokenAndCreateAPI();
+   if (!api) {
+      // Handle the case when the API instance is not available
+      console.error('API instance is not available.');
+      return null;
+   }
    const response = await api.put(`/chat/${params.chatId}/remove`, { members: members });
    const data = response.data as unknown as IChatroom
    return data;

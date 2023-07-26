@@ -38,8 +38,8 @@ class AuthService {
 
    async getToken(): Promise<string> {
       // Retrieves the user token from localStorage
-      const token = await AsyncStorage.getItem('id_token');
-      return token || "";
+      const token = await AsyncStorage.getItem('id_token') || "";
+      return token;
    }
 
    async login(idToken: string): Promise<void> {
